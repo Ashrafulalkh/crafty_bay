@@ -1,11 +1,11 @@
 import 'package:crafty_bay/presentation/state_holders/bottom_nav_bar_Controller.dart';
-import 'package:crafty_bay/presentation/ui/screens/category_list_screen.dart';
+import 'package:crafty_bay/presentation/state_holders/category_list_controller.dart';
 import 'package:crafty_bay/presentation/ui/utils/assets_path.dart';
+import 'package:crafty_bay/presentation/ui/widgets/center_circular_progress_indicator.dart';
 import 'package:crafty_bay/presentation/ui/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -105,9 +105,18 @@ class _HomeScreenState extends State<HomeScreen> {
         const SizedBox(
           height: 8,
         ),
-        const SizedBox(
+        SizedBox(
           height: 120,
-          child: HorizontalCategoryListView(),
+          child: GetBuilder<CategoryListController>(
+              builder: (categoryListController) {
+            return Visibility(
+              visible: !categoryListController.inProgress,
+              replacement: const CenterCircularProgressIndicator(),
+              child: HorizontalCategoryListView(
+                categoryList: categoryListController.categoryList,
+              ),
+            );
+          }),
         ),
       ],
     );

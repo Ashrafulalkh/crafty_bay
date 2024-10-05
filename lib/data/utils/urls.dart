@@ -3,4 +3,5 @@ class Urls {
 
   static const sliderListUrl = '$_baseUrl/ListProductSlider';
   static const categoryListUrl = '$_baseUrl/CategoryList';
+  static productListUrl(String category) => '$_baseUrl/ListProductByRemark/$category';
 }

@@ -1,4 +1,4 @@
-import 'package:crafty_bay/presentation/state_holders/bottom_nav_bar_Controller.dart';
+import 'package:crafty_bay/presentation/state_holders/bottom_nav_bar_controller.dart';
 import 'package:crafty_bay/presentation/state_holders/category_list_controller.dart';
 import 'package:crafty_bay/presentation/ui/widgets/center_circular_progress_indicator.dart';
 import 'package:crafty_bay/presentation/ui/widgets/widgets.dart';

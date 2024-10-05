@@ -1,13 +1,15 @@
+import 'package:crafty_bay/data/models/product_model.dart';
 import 'package:crafty_bay/presentation/ui/screens/product_details_screen.dart';
 import 'package:crafty_bay/presentation/ui/utils/app_colors.dart';
-import 'package:crafty_bay/presentation/ui/utils/assets_path.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class ProductCard extends StatelessWidget {
   const ProductCard({
-    super.key,
+    super.key, required this.product,
   });
+
+  final ProductModel product;
 
   @override
   Widget build(BuildContext context) {
@@ -18,12 +20,12 @@ class ProductCard extends StatelessWidget {
       child: Card(
         color: Colors.white,
         child: SizedBox(
-          width: 120,
+          width: 150,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 120,
+                width: 150,
                 height: 100,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -32,8 +34,8 @@ class ProductCard extends StatelessWidget {
                     topLeft: Radius.circular(8),
                     topRight: Radius.circular(8),
                   ),
-                  image: const DecorationImage(
-                    image: AssetImage(AssetsPath.dummyProductImg),
+                  image:  DecorationImage(
+                    image: NetworkImage(product.image ?? ''),
                     fit: BoxFit.scaleDown,
                   ),
                 ),
@@ -43,25 +45,25 @@ class ProductCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Product Name',maxLines: 1,style: TextStyle(
+                     Text(product.title ?? '',maxLines: 1,style: const TextStyle(
                       fontWeight: FontWeight.w500,
                       color: Colors.black54,
                     ),),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('\$120',style: TextStyle(
+                         Text('\$${product.price}',style: const TextStyle(
                           fontWeight: FontWeight.w500,
                           color: AppColors.themeColor,
                         ),),
-                        const Wrap(
+                        Wrap(
                           crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.star,
                               color: Colors.amber,
                             ),
-                            Text('3',style: TextStyle(
+                            Text('${product.star}',style: const TextStyle(
                               fontWeight: FontWeight.w500,
                               color: Colors.black54,
                             ),),

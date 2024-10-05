@@ -1,4 +1,4 @@
-import 'package:crafty_bay/presentation/state_holders/bottom_nav_bar_Controller.dart';
+import 'package:crafty_bay/presentation/state_holders/bottom_nav_bar_controller.dart';
 import 'package:crafty_bay/presentation/ui/utils/app_colors.dart';
 import 'package:crafty_bay/presentation/ui/utils/assets_path.dart';
 import 'package:flutter/material.dart';

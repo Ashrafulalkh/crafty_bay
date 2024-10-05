@@ -1,4 +1,4 @@
-import 'package:crafty_bay/presentation/state_holders/bottom_nav_bar_Controller.dart';
+import 'package:crafty_bay/presentation/state_holders/bottom_nav_bar_controller.dart';
 import 'package:crafty_bay/presentation/ui/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -30,7 +30,7 @@ class WishListScreen extends StatelessWidget {
             crossAxisSpacing: 7,
           ),
           itemBuilder: (context, index) {
-            return const ProductCard();
+            // return const ProductCard();
           },
         ),
       ),

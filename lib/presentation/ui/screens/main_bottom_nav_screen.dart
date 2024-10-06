@@ -1,7 +1,9 @@
 import 'package:crafty_bay/presentation/state_holders/bottom_nav_bar_controller.dart';
 import 'package:crafty_bay/presentation/state_holders/category_list_controller.dart';
-import 'package:crafty_bay/presentation/state_holders/product_list_controller.dart';
+import 'package:crafty_bay/presentation/state_holders/new_product_list_controller.dart';
+import 'package:crafty_bay/presentation/state_holders/popular_product_list_controller.dart';
 import 'package:crafty_bay/presentation/state_holders/slider_list_controller.dart';
+import 'package:crafty_bay/presentation/state_holders/special_product_list_controller.dart';
 import 'package:crafty_bay/presentation/ui/screens/cart_screen.dart';
 import 'package:crafty_bay/presentation/ui/screens/category_list_screen.dart';
 import 'package:crafty_bay/presentation/ui/screens/home_screen.dart';
@@ -31,7 +33,9 @@ class _MainBottomNavScreenState extends State<MainBottomNavScreen> {
     super.initState();
     Get.find<SliderListController>().getSliderList();
     Get.find<CategoryListController>().getCategoryList();
-    Get.find<ProductListController>().getProduct();
+    Get.find<NewProductListController>().getNewProduct();
+    Get.find<PopularProductListController>().getPopularProduct();
+    Get.find<SpecialProductListController>().getSpecialProduct();
   }
 
 
@@ -42,6 +46,7 @@ class _MainBottomNavScreenState extends State<MainBottomNavScreen> {
         return Scaffold(
           body: _screens[_bottomNavBarController.selectedIndex],
           bottomNavigationBar: NavigationBar(
+            backgroundColor: Colors.white,
             selectedIndex: _bottomNavBarController.selectedIndex,
             onDestinationSelected: _bottomNavBarController.changeIndex,
             destinations: const [

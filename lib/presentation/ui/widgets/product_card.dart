@@ -6,7 +6,8 @@ import 'package:get/get.dart';
 
 class ProductCard extends StatelessWidget {
   const ProductCard({
-    super.key, required this.product,
+    super.key,
+    required this.product,
   });
 
   final ProductModel product;
@@ -15,9 +16,14 @@ class ProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Get.to(() => const ProductDetailsScreen());
+        Get.to(
+          () => ProductDetailsScreen(
+            productId: product.id!,
+          ),
+        );
       },
       child: Card(
+        elevation: 5,
         color: Colors.white,
         child: SizedBox(
           width: 150,
@@ -29,12 +35,11 @@ class ProductCard extends StatelessWidget {
                 height: 100,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.themeColor.withOpacity(0.15),
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(8),
                     topRight: Radius.circular(8),
                   ),
-                  image:  DecorationImage(
+                  image: DecorationImage(
                     image: NetworkImage(product.image ?? ''),
                     fit: BoxFit.scaleDown,
                   ),
@@ -45,17 +50,24 @@ class ProductCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                     Text(product.title ?? '',maxLines: 1,style: const TextStyle(
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black54,
-                    ),),
+                    Text(
+                      product.title ?? '',
+                      maxLines: 1,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black54,
+                      ),
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                         Text('\$${product.price}',style: const TextStyle(
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.themeColor,
-                        ),),
+                        Text(
+                          '\$${product.price}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.themeColor,
+                          ),
+                        ),
                         Wrap(
                           crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
@@ -63,10 +75,13 @@ class ProductCard extends StatelessWidget {
                               Icons.star,
                               color: Colors.amber,
                             ),
-                            Text('${product.star}',style: const TextStyle(
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black54,
-                            ),),
+                            Text(
+                              '${product.star}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black54,
+                              ),
+                            ),
                           ],
                         ),
                         Card(

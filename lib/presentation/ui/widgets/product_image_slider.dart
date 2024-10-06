@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 
 class ProductImageSlider extends StatefulWidget {
   const ProductImageSlider({
-    super.key,
+    super.key, required this.sliderUrls,
   });
+
+  final List<String> sliderUrls;
 
   @override
   State<ProductImageSlider> createState() => _ProductImageSliderState();
@@ -27,21 +29,14 @@ class _ProductImageSliderState extends State<ProductImageSlider> {
               _selectedIndex.value = index;
             },
           ),
-          items: [1, 2, 3, 4, 5].map(
-            (i) {
+          items: widget.sliderUrls.map((imageUrl) {
               return Builder(
                 builder: (BuildContext context) {
                   return Container(
                     decoration: BoxDecoration(
                       color: Colors.grey.shade200,
-                      image: const DecorationImage(
-                        image: AssetImage(AssetsPath.dummyProductImg),
-                      ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        'text $i',
-                        style: const TextStyle(fontSize: 16.0),
+                      image: DecorationImage(
+                        image: NetworkImage(imageUrl),
                       ),
                     ),
                   );

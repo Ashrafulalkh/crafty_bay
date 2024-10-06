@@ -1,6 +1,8 @@
+import 'package:crafty_bay/data/models/product_details_model.dart';
+import 'package:crafty_bay/presentation/state_holders/product_details_controller.dart';
 import 'package:crafty_bay/presentation/ui/screens/reviews_screen.dart';
 import 'package:crafty_bay/presentation/ui/utils/app_colors.dart';
-import 'package:crafty_bay/presentation/ui/widgets/color_picker.dart';
+import 'package:crafty_bay/presentation/ui/widgets/center_circular_progress_indicator.dart';
 import 'package:crafty_bay/presentation/ui/widgets/product_image_slider.dart';
 import 'package:crafty_bay/presentation/ui/widgets/size_picker.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +10,9 @@ import 'package:get/get.dart';
 import 'package:item_count_number_button/item_count_number_button.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
-  const ProductDetailsScreen({super.key});
+  const ProductDetailsScreen({super.key, required this.productId});
+
+  final int productId;
 
   @override
   State<ProductDetailsScreen> createState() => _ProductDetailsScreenState();
@@ -16,60 +20,85 @@ class ProductDetailsScreen extends StatefulWidget {
 
 class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   @override
+  void initState() {
+    super.initState();
+    Get.find<ProductDetailsController>().getProductDetails(widget.productId);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Product Details'),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: _buildProductDetails(),
-          ),
-          _buildPriceAndAddToCartSection(),
-        ],
-      ),
+      body: GetBuilder<ProductDetailsController>(
+          builder: (productDetailsController) {
+        if (productDetailsController.inProgress) {
+          return const CenterCircularProgressIndicator();
+        }
+        if (productDetailsController.errorMassage != null) {
+          return Center(
+            child: Text(productDetailsController.errorMassage!),
+          );
+        }
+        return Column(
+          children: [
+            Expanded(
+              child: _buildProductDetails(
+                productDetailsController.productModel!,
+              ),
+            ),
+            _buildPriceAndAddToCartSection(
+              productDetailsController.productModel!,
+            ),
+          ],
+        );
+      }),
     );
   }
 
-  Widget _buildProductDetails() {
+  Widget _buildProductDetails(ProductDetailsModel productDetails) {
     return SingleChildScrollView(
       child: Column(
         children: [
-          const ProductImageSlider(),
+          ProductImageSlider(sliderUrls: [
+            productDetails.img1!,
+            productDetails.img2!,
+            productDetails.img3!,
+            productDetails.img4!,
+          ],),
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildNameAndQuantitySection(),
-                _buildRatingAndReviewSection(),
+                _buildNameAndQuantitySection(productDetails),
+                _buildRatingAndReviewSection(productDetails),
                 const SizedBox(
                   height: 8,
                 ),
-                ColorPicker(colors: const [
-                  Colors.black,
-                  Colors.lightBlueAccent,
-                  Colors.brown,
-                  Colors.red,
-                  Colors.grey,
-                ], onColorSelected: (color) {}),
+                // ColorPicker(colors: const [
+                //   Colors.black,
+                //   Colors.lightBlueAccent,
+                //   Colors.brown,
+                //   Colors.red,
+                //   Colors.grey,
+                // ], onColorSelected: (color) {}),
+                SizePicker(
+                  size: productDetails.color!.split(','),
+                  onSizeSelected: (String selectSize) {},
+                ),
                 const SizedBox(
                   height: 8,
                 ),
                 SizePicker(
-                  size: const [
-                    'M',
-                    'L',
-                    'Xl',
-                    'XXl',
-                  ],
+                  size: productDetails.size!.split(','),
                   onSizeSelected: (String selectSize) {},
                 ),
                 const SizedBox(
                   height: 16,
                 ),
-                _buildDescriptionSection(),
+                _buildDescriptionSection(productDetails),
               ],
             ),
           ),
@@ -78,32 +107,32 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  Widget _buildDescriptionSection() {
+  Widget _buildDescriptionSection(ProductDetailsModel productDetails) {
     return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Description',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(
-                    height: 6,
-                  ),
-                  const Text(
-                    '''Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.''',
-                    style: TextStyle(color: Colors.black45),
-                  ),
-                ],
-              );
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Description',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(
+          height: 6,
+        ),
+        Text(
+          productDetails.product!.shortDes ?? '',
+          style: const TextStyle(color: Colors.black45),
+        ),
+      ],
+    );
   }
 
-  Widget _buildNameAndQuantitySection() {
+  Widget _buildNameAndQuantitySection(ProductDetailsModel productDetails) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
           child: Text(
-            'Nike Show 2024 Latest Model- New Year Special Deal',
+            productDetails.product?.title ?? '',
             style: Theme.of(context).textTheme.titleMedium,
           ),
         ),
@@ -119,20 +148,20 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  Widget _buildRatingAndReviewSection() {
+  Widget _buildRatingAndReviewSection(ProductDetailsModel productDetails) {
     return Wrap(
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        const Wrap(
+         Wrap(
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.star,
               color: Colors.amber,
             ),
             Text(
-              '3',
-              style: TextStyle(
+              productDetails.product?.star.toString() ?? '',
+              style: const TextStyle(
                 fontWeight: FontWeight.w500,
                 color: Colors.black54,
               ),
@@ -175,7 +204,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  Widget _buildPriceAndAddToCartSection() {
+  Widget _buildPriceAndAddToCartSection(ProductDetailsModel productDetails) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -187,13 +216,13 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Price'),
+              const Text('Price'),
               Text(
-                '\$120',
-                style: TextStyle(
+                '\$${productDetails.product?.price ?? ''}',
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                   color: AppColors.themeColor,

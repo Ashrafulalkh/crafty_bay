@@ -1,6 +1,8 @@
 import 'package:crafty_bay/presentation/state_holders/bottom_nav_bar_controller.dart';
 import 'package:crafty_bay/presentation/state_holders/category_list_controller.dart';
-import 'package:crafty_bay/presentation/state_holders/product_list_controller.dart';
+import 'package:crafty_bay/presentation/state_holders/new_product_list_controller.dart';
+import 'package:crafty_bay/presentation/state_holders/popular_product_list_controller.dart';
+import 'package:crafty_bay/presentation/state_holders/special_product_list_controller.dart';
 import 'package:crafty_bay/presentation/ui/utils/assets_path.dart';
 import 'package:crafty_bay/presentation/ui/widgets/center_circular_progress_indicator.dart';
 import 'package:crafty_bay/presentation/ui/widgets/widgets.dart';
@@ -65,7 +67,20 @@ class _HomeScreenState extends State<HomeScreen> {
           title: 'Popular',
           onTap: () {},
         ),
-        const SizedBox(height: 180, child: HorizontalProductListView(prodcutList: [],)),
+        SizedBox(
+          height: 180,
+          child: GetBuilder<PopularProductListController>(
+            builder: (popukarProductListController) {
+              return Visibility(
+                visible: !popukarProductListController.inProgress,
+                replacement: const CenterCircularProgressIndicator(),
+                child: HorizontalProductListView(
+                  prodcutList: popukarProductListController.productList,
+                ),
+              );
+            },
+          ),
+        ),
       ],
     );
   }
@@ -77,14 +92,19 @@ class _HomeScreenState extends State<HomeScreen> {
           title: 'New',
           onTap: () {},
         ),
-         SizedBox(height: 180, child: GetBuilder<ProductListController>(
-           builder: (productListController) {
-             return Visibility(
-               visible: !productListController.inProgress,
-                 replacement: const CenterCircularProgressIndicator(),
-                 child:  HorizontalProductListView(prodcutList: productListController.productList,),);
-           }
-         ),),
+        SizedBox(
+          height: 180,
+          child: GetBuilder<NewProductListController>(
+              builder: (productListController) {
+            return Visibility(
+              visible: !productListController.inProgress,
+              replacement: const CenterCircularProgressIndicator(),
+              child: HorizontalProductListView(
+                prodcutList: productListController.productList,
+              ),
+            );
+          }),
+        ),
       ],
     );
   }
@@ -96,7 +116,19 @@ class _HomeScreenState extends State<HomeScreen> {
           title: 'Special',
           onTap: () {},
         ),
-        const SizedBox(height: 180, child: HorizontalProductListView(prodcutList: [],)),
+        SizedBox(
+            height: 180,
+            child: GetBuilder<SpecialProductListController>(
+              builder: (specialProductListController) {
+                return Visibility(
+                  visible: !specialProductListController.inProgress,
+                  replacement: const CenterCircularProgressIndicator(),
+                  child: HorizontalProductListView(
+                    prodcutList: specialProductListController.productList,
+                  ),
+                );
+              }
+            ),),
       ],
     );
   }

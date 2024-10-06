@@ -5,7 +5,7 @@ import 'package:crafty_bay/data/services/network_caller.dart';
 import 'package:crafty_bay/data/utils/urls.dart';
 import 'package:get/get.dart';
 
-class ProductListController extends GetxController {
+class PopularProductListController extends GetxController {
   bool _inProgress = false;
   String? _errorMassage = '';
 
@@ -17,13 +17,13 @@ class ProductListController extends GetxController {
 
   List<ProductModel> get productList => _productList;
 
-  Future<bool> getProduct() async {
+  Future<bool> getPopularProduct() async {
     bool isSuccess = false;
     
     _inProgress = true;
     update();
     
-    NetworkResponse response = await Get.find<NetworkCaller>().getRequest(url: Urls.productListUrl('new'),);
+    NetworkResponse response = await Get.find<NetworkCaller>().getRequest(url: Urls.productListUrl('popular'),);
 
     if(response.isSuccess) {
       _productList = ProductListModel.fromJson(response.responseData).productList ?? [];

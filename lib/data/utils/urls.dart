@@ -6,4 +6,5 @@ class Urls {
   static productListUrl(String remark) => '$_baseUrl/ListProductByRemark/$remark';
   static productListByCategoryUrl(int categoryId) => '$_baseUrl/ListProductByCategory/$categoryId';
   static productDetailsUrl(int productId) => '$_baseUrl/ProductDetailsById/$productId';
+  static verifyEmailUrl(String email) => '$_baseUrl/UserLogin/$email';
 }

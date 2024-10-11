@@ -1,5 +1,6 @@
 import 'package:crafty_bay/presentation/state_holders/auth_controllers/email_verification_controller.dart';
 import 'package:crafty_bay/presentation/ui/screens/otp_verification_screen.dart';
+import 'package:crafty_bay/presentation/ui/utils/Snack_bar.dart';
 import 'package:crafty_bay/presentation/ui/widgets/app_logo.dart';
 import 'package:crafty_bay/presentation/ui/widgets/center_circular_progress_indicator.dart';
 import 'package:flutter/material.dart';
@@ -93,18 +94,17 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
     bool result = await _emailVerificationController
         .verifyEmail(_emailController.text.trim());
 
-    if(result) {
-      Get.to(() => const OtpVerificationScreen());
-    }else {
-      Get.showSnackbar(
-        const GetSnackBar(
-          title: 'Verify Email Error',
-          message: 'Something Went Wrong',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 3),
+    if (result) {
+      successSnackbarMassage(
+          'Email Verification', 'OTP successfully send to your email');
+      Get.to(
+        () => OtpVerificationScreen(
+          email: _emailController.text.trim(),
         ),
       );
+    } else {
+      failedSnackbarMassage('Email Verification',
+          'OTP can not be sent!! Please Check & Try again');
     }
   }
 

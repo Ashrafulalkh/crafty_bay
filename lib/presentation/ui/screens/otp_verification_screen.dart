@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:crafty_bay/presentation/state_holders/auth_controllers/email_verification_controller.dart';
 import 'package:crafty_bay/presentation/state_holders/auth_controllers/otp_verification_controller.dart';
 import 'package:crafty_bay/presentation/state_holders/auth_controllers/read_profile_controller.dart';
 import 'package:crafty_bay/presentation/ui/screens/complete_profile_screen.dart';
@@ -24,6 +27,43 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   final OtpVerificationController _otpVerificationController =
       Get.find<OtpVerificationController>();
   final ReadProfileController _readProfileController = Get.find<ReadProfileController>();
+  int _remainingTime = 120;  // Set initial time to 120 seconds
+  Timer? _timer;  // Timer to manage countdown
+  bool _showResendButton = false;  // To show or hide the resend button;
+
+  @override
+  void initState() {
+    super.initState();
+    _startTimer();  // Start the countdown timer when the screen is loaded
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();  // Cancel the timer when the widget is disposed
+    _otpController.dispose();
+    super.dispose();
+  }
+
+  void _startTimer() {
+    _showResendButton = false;  // Hide resend button initially
+    _remainingTime = 120;  // Reset the time to 120 seconds
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        if (_remainingTime > 0) {
+          _remainingTime--;  // Decrease the time
+        } else {
+          _timer?.cancel();  // Stop the timer when it reaches 0
+          _showResendButton = true;  // Show the resend button
+        }
+      });
+    });
+  }
+
+  Future<void>_resendCode() async{
+    _startTimer();  // Restart the timer when resend code is clicked
+    await Get.find<EmailVerificationController>().verifyEmail(widget.email);
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -99,10 +139,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                         color: Colors.grey,
                       ),
                   text: 'The Code Will Expire in ',
-                  children: const [
+                  children:[
                     TextSpan(
-                      text: '120s',
-                      style: TextStyle(color: AppColors.themeColor),
+                      text: '$_remainingTime Seconds',
+                      style: const TextStyle(color: AppColors.themeColor),
                     ),
                   ],
                 ),
@@ -110,9 +150,14 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
               const SizedBox(
                 height: 16,
               ),
-              TextButton(
-                onPressed: () {},
-                child: const Text('Resend Code'),
+              Visibility(
+                visible: _showResendButton,
+                child: TextButton(
+                  onPressed: () {
+                    _resendCode();
+                  },
+                  child: const Text('Resend Code'),
+                ),
               ),
             ],
           ),

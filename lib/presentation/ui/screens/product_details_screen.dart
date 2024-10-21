@@ -1,8 +1,10 @@
 import 'package:crafty_bay/data/models/product_details_model.dart';
+import 'package:crafty_bay/presentation/state_holders/auth_controllers/add_to_cart_controller.dart';
 import 'package:crafty_bay/presentation/state_holders/auth_controllers/auth_controller.dart';
 import 'package:crafty_bay/presentation/state_holders/product_details_controller.dart';
 import 'package:crafty_bay/presentation/ui/screens/email_verification_screen.dart';
 import 'package:crafty_bay/presentation/ui/screens/reviews_screen.dart';
+import 'package:crafty_bay/presentation/ui/utils/Snack_bar.dart';
 import 'package:crafty_bay/presentation/ui/utils/app_colors.dart';
 import 'package:crafty_bay/presentation/ui/widgets/center_circular_progress_indicator.dart';
 import 'package:crafty_bay/presentation/ui/widgets/product_image_slider.dart';
@@ -21,6 +23,10 @@ class ProductDetailsScreen extends StatefulWidget {
 }
 
 class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
+  String _selectColor = '';
+  String _selectSize = '';
+  int quantity = 1;
+
   @override
   void initState() {
     super.initState();
@@ -60,15 +66,21 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }
 
   Widget _buildProductDetails(ProductDetailsModel productDetails) {
+    List<String> colors = productDetails.color!.split(',');
+    List<String> sizes = productDetails.size!.split(',');
+    _selectSize = sizes.first;
+    _selectColor = colors.first;
     return SingleChildScrollView(
       child: Column(
         children: [
-          ProductImageSlider(sliderUrls: [
-            productDetails.img1!,
-            productDetails.img2!,
-            productDetails.img3!,
-            productDetails.img4!,
-          ],),
+          ProductImageSlider(
+            sliderUrls: [
+              productDetails.img1!,
+              productDetails.img2!,
+              productDetails.img3!,
+              productDetails.img4!,
+            ],
+          ),
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -87,15 +99,19 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 //   Colors.grey,
                 // ], onColorSelected: (color) {}),
                 SizePicker(
-                  size: productDetails.color!.split(','),
-                  onSizeSelected: (String selectSize) {},
+                  size: colors,
+                  onSizeSelected: (String selectColor) {
+                    _selectColor = selectColor;
+                  }, title: 'Colors',
                 ),
                 const SizedBox(
                   height: 8,
                 ),
                 SizePicker(
-                  size: productDetails.size!.split(','),
-                  onSizeSelected: (String selectSize) {},
+                  size: sizes,
+                  onSizeSelected: (String selectSize) {
+                    _selectSize = selectSize;
+                  }, title: 'Size',
                 ),
                 const SizedBox(
                   height: 16,
@@ -139,12 +155,15 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           ),
         ),
         ItemCount(
-          initialValue: 1,
+          initialValue: quantity,
           minValue: 1,
           maxValue: 10,
           decimalPlaces: 0,
           color: AppColors.themeColor,
-          onChanged: (value) {},
+          onChanged: (value) {
+            quantity = value.toInt();
+            setState(() {});
+          },
         ),
       ],
     );
@@ -154,7 +173,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     return Wrap(
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-         Wrap(
+        Wrap(
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             const Icon(
@@ -234,11 +253,19 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           ),
           SizedBox(
             width: 140,
-            child: ElevatedButton(
-              onPressed: () {
-                _onTapAddToCart();
-              },
-              child: const Text('Add To Cart'),
+            child: GetBuilder<AddToCartController>(
+              builder: (addToCartController) {
+                return Visibility(
+                  visible: !addToCartController.inProgress,
+                  replacement: const CenterCircularProgressIndicator(),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _onTapAddToCart();
+                    },
+                    child: const Text('Add To Cart'),
+                  ),
+                );
+              }
             ),
           )
         ],
@@ -246,11 +273,21 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  void _onTapAddToCart() async{
-    bool result = await Get.find<AuthController>().isLoggedIn();
-    if(result) {
-
-    }else{
+  void _onTapAddToCart() async {
+    bool result = Get.find<AuthController>().isLoggedIn();
+    if (result) {
+      final bool addToCartResult = await Get.find<AddToCartController>().addToCart(
+        widget.productId,
+        _selectColor,
+        _selectSize,
+        quantity,
+      );
+      if(addToCartResult) {
+        successSnackbarMassage('Add To Cart', 'Product successfully added to the cart');
+      }else {
+        failedSnackbarMassage('Add To Cart', 'Product can not added to the cart!! Please Try Again');
+      }
+    } else {
       Get.to(() => const EmailVerificationScreen());
     }
   }

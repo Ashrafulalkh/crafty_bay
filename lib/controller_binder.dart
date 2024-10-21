@@ -1,5 +1,7 @@
 import 'package:crafty_bay/data/services/network_caller.dart';
+import 'package:crafty_bay/presentation/state_holders/auth_controllers/add_to_cart_controller.dart';
 import 'package:crafty_bay/presentation/state_holders/auth_controllers/auth_controller.dart';
+import 'package:crafty_bay/presentation/state_holders/auth_controllers/complete_profile_controller.dart';
 import 'package:crafty_bay/presentation/state_holders/auth_controllers/email_verification_controller.dart';
 import 'package:crafty_bay/presentation/state_holders/auth_controllers/otp_verification_controller.dart';
 import 'package:crafty_bay/presentation/state_holders/auth_controllers/read_profile_controller.dart';
@@ -18,20 +20,24 @@ import 'presentation/state_holders/category_list_controller.dart';
 class ControllerBinder extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut(() => BottomNavBarController());
+    Get.put(BottomNavBarController());
     Get.put(Logger());
-    Get.put(NetworkCaller(logger: Get.find<Logger>()));
-    Get.lazyPut(() => SliderListController());
-    Get.lazyPut(() => CategoryListController());
-    Get.lazyPut(() => NewProductListController());
-    Get.lazyPut(() => PopularProductListController());
-    Get.lazyPut(() => SpecialProductListController());
+    Get.put(AuthController());
+    Get.put(NetworkCaller(
+      logger: Get.find<Logger>(),
+      authController: Get.find<AuthController>(),
+    ));
+    Get.put(SliderListController());
+    Get.put(CategoryListController());
+    Get.put(NewProductListController());
+    Get.put(PopularProductListController());
+    Get.put(SpecialProductListController());
     Get.put(ProductListByCategoryController());
     Get.put(ProductDetailsController());
-    Get.put(AuthController());
-    Get.lazyPut(() => EmailVerificationController());
-    Get.lazyPut(() => OtpVerificationController());
-    Get.lazyPut(() => ReadProfileController());
+    Get.put(EmailVerificationController());
+    Get.put(OtpVerificationController());
+    Get.put(ReadProfileController());
+    Get.put(AddToCartController());
+    Get.put(CompleteProfileController());
   }
-
 }

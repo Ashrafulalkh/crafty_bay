@@ -2,13 +2,17 @@ import 'dart:convert';
 
 import 'package:crafty_bay/data/models/network_response.dart';
 import 'package:crafty_bay/presentation/state_holders/auth_controllers/auth_controller.dart';
+import 'package:crafty_bay/presentation/ui/screens/email_verification_screen.dart';
+import 'package:get/get.dart' as getx;
+import 'package:get/get_core/src/get_main.dart';
 import 'package:http/http.dart';
 import 'package:logger/logger.dart';
 
 class NetworkCaller {
   final Logger logger;
+  final AuthController authController;
 
-  NetworkCaller({required this.logger});
+  NetworkCaller({required this.logger,required this.authController});
 
   Future<NetworkResponse> getRequest({required String url,String? token}) async {
     try {
@@ -28,6 +32,9 @@ class NetworkCaller {
         );
       } else {
         responseLog(url, response.statusCode, response.body, response.headers, false);
+        if(response.statusCode == 401){
+          _moveToLogin();
+        }
         return NetworkResponse(
           isSuccess: false,
           statusCode: response.statusCode,
@@ -46,12 +53,22 @@ class NetworkCaller {
   Future<NetworkResponse> postRequest(
       {required String url, Map<String, dynamic>? body}) async {
     try {
+      final String? token = await Get.find<AuthController>().getAccessToken();
+      if (token == null || token.isEmpty) {
+        // Handle token absence (e.g., redirect to login)
+        _moveToLogin();
+        return NetworkResponse(
+          isSuccess: false,
+          statusCode: 401,
+          errorMessage: 'Token is missing. Please login again.',
+        );
+      }
       Uri uri = Uri.parse(url);
       requestLog(url, {}, body ?? {} , '');
       final Response response = await post(
         uri,
         headers: {
-          'token': '${AuthController.accessToken}',
+          'token': token,
           'content-type': 'application/json',
         },
         body: jsonEncode(body),
@@ -66,6 +83,9 @@ class NetworkCaller {
         );
       } else {
         responseLog(url, response.statusCode, response.body, response.headers, false);
+        if(response.statusCode == 401){
+          _moveToLogin();
+        }
         return NetworkResponse(
           isSuccess: false,
           statusCode: response.statusCode,
@@ -79,6 +99,11 @@ class NetworkCaller {
         errorMessage: e.toString(),
       );
     }
+  }
+
+  Future<void> _moveToLogin() async {
+    await authController.clearUserData();
+    getx.Get.to(() => const EmailVerificationScreen());
   }
 
   void requestLog(String url,Map<String, dynamic> params,Map<String, dynamic> body, String token) {

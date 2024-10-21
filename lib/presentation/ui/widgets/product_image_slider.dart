@@ -36,7 +36,8 @@ class _ProductImageSliderState extends State<ProductImageSlider> {
                     decoration: BoxDecoration(
                       color: Colors.grey.shade200,
                       image: DecorationImage(
-                        image: NetworkImage(imageUrl),
+                        fit: BoxFit.cover,
+                        image: NetworkImage(imageUrl,),
                       ),
                     ),
                   );

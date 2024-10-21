@@ -3,10 +3,11 @@ import 'package:flutter/material.dart';
 
 class SizePicker extends StatefulWidget {
   const SizePicker(
-      {super.key, required this.size, required this.onSizeSelected});
+      {super.key, required this.size, required this.onSizeSelected, required this.title});
 
   final List<String> size;
   final Function(String) onSizeSelected;
+  final String title;
 
   @override
   State<SizePicker> createState() => _SizePickerState();
@@ -21,7 +22,7 @@ class _SizePickerState extends State<SizePicker> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Size',
+          widget.title,
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(

@@ -102,7 +102,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   size: colors,
                   onSizeSelected: (String selectColor) {
                     _selectColor = selectColor;
-                  }, title: 'Colors',
+                  },
+                  title: 'Colors',
                 ),
                 const SizedBox(
                   height: 8,
@@ -111,7 +112,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   size: sizes,
                   onSizeSelected: (String selectSize) {
                     _selectSize = selectSize;
-                  }, title: 'Size',
+                  },
+                  title: 'Size',
                 ),
                 const SizedBox(
                   height: 16,
@@ -194,7 +196,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         ),
         TextButton(
           onPressed: () {
-            Get.to(() => const ReviewsScreen());
+            Get.to(
+              () => ReviewsScreen(
+                id: widget.productId,
+              ),
+            );
           },
           child: const Text(
             'Reviews',
@@ -253,20 +259,19 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           ),
           SizedBox(
             width: 140,
-            child: GetBuilder<AddToCartController>(
-              builder: (addToCartController) {
-                return Visibility(
-                  visible: !addToCartController.inProgress,
-                  replacement: const CenterCircularProgressIndicator(),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      _onTapAddToCart();
-                    },
-                    child: const Text('Add To Cart'),
-                  ),
-                );
-              }
-            ),
+            child:
+                GetBuilder<AddToCartController>(builder: (addToCartController) {
+              return Visibility(
+                visible: !addToCartController.inProgress,
+                replacement: const CenterCircularProgressIndicator(),
+                child: ElevatedButton(
+                  onPressed: () {
+                    _onTapAddToCart();
+                  },
+                  child: const Text('Add To Cart'),
+                ),
+              );
+            }),
           )
         ],
       ),
@@ -276,16 +281,19 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   void _onTapAddToCart() async {
     bool result = Get.find<AuthController>().isLoggedIn();
     if (result) {
-      final bool addToCartResult = await Get.find<AddToCartController>().addToCart(
+      final bool addToCartResult =
+          await Get.find<AddToCartController>().addToCart(
         widget.productId,
         _selectColor,
         _selectSize,
         quantity,
       );
-      if(addToCartResult) {
-        successSnackbarMassage('Add To Cart', 'Product successfully added to the cart');
-      }else {
-        failedSnackbarMassage('Add To Cart', 'Product can not added to the cart!! Please Try Again');
+      if (addToCartResult) {
+        successSnackbarMassage(
+            'Add To Cart', 'Product successfully added to the cart');
+      } else {
+        failedSnackbarMassage('Add To Cart',
+            'Product can not added to the cart!! Please Try Again');
       }
     } else {
       Get.to(() => const EmailVerificationScreen());

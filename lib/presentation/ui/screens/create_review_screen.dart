@@ -1,5 +1,4 @@
 import 'package:crafty_bay/presentation/state_holders/create_reiew_controller.dart';
-import 'package:crafty_bay/presentation/ui/screens/reviews_screen.dart';
 import 'package:crafty_bay/presentation/ui/utils/Snack_bar.dart';
 import 'package:crafty_bay/presentation/ui/widgets/center_circular_progress_indicator.dart';
 import 'package:flutter/material.dart';

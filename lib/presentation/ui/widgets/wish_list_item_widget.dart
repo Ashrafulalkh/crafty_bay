@@ -1,18 +1,16 @@
 import 'package:crafty_bay/data/models/cart_list_data_model.dart';
+import 'package:crafty_bay/data/models/wish_list_data_model.dart';
 import 'package:crafty_bay/presentation/ui/utils/app_colors.dart';
 import 'package:flutter/material.dart';
-import 'package:item_count_number_button/item_count_number_button.dart';
 
-class CartItemWidget extends StatelessWidget {
-  const CartItemWidget({
+class WishListtemWidget extends StatelessWidget {
+  const WishListtemWidget({
     super.key,
-    required this.cartListData,
-    required this.onQuantityChanged,
     required this.onDelete,
+    required this.wishListData,
   });
 
-  final CartListDataModel cartListData;
-  final ValueChanged<int> onQuantityChanged; // Accepts int now
+  final WishListDataModel wishListData;
   final VoidCallback onDelete;
 
   @override
@@ -35,10 +33,10 @@ class CartItemWidget extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            cartListData.product?.title ?? 'Unknown',
+                            wishListData.product?.title ?? 'Unknown',
                             style: textTheme.bodyLarge,
                           ),
-                          _buildColorAndSize(textTheme),
+                          // _buildColorAndSize(textTheme),
                         ],
                       ),
                     ),
@@ -57,41 +55,31 @@ class CartItemWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildColorAndSize(TextTheme textTheme) {
-    return Wrap(
-      spacing: 8,
-      children: [
-        Text(
-          'Color : ${cartListData.color}',
-          style: textTheme.bodySmall?.copyWith(color: Colors.grey),
-        ),
-        Text(
-          'Size : ${cartListData.size}',
-          style: textTheme.bodySmall?.copyWith(color: Colors.grey),
-        ),
-      ],
-    );
-  }
+  // Widget _buildColorAndSize(TextTheme textTheme) {
+  //   return Wrap(
+  //     spacing: 8,
+  //     children: [
+  //       Text(
+  //         'Color : ${wishListData.product.shortDes}',
+  //         style: textTheme.bodySmall?.copyWith(color: Colors.grey),
+  //       ),
+  //       Text(
+  //         'Size : ${cartListData.size}',
+  //         style: textTheme.bodySmall?.copyWith(color: Colors.grey),
+  //       ),
+  //     ],
+  //   );
+  // }
 
   Widget _buildPriceAndCounter(TextTheme textTheme) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          '\$${cartListData.price}',
+          '\$${wishListData.product?.price}',
           style: textTheme.titleMedium?.copyWith(
             color: AppColors.themeColor,
           ),
-        ),
-        ItemCount(
-          initialValue: int.parse(cartListData.qty ?? '1'),
-          minValue: 1,
-          maxValue: 10,
-          decimalPlaces: 0,
-          color: AppColors.themeColor,
-          onChanged: (value) {
-            onQuantityChanged(value.toInt()); // Ensure this is an int
-          },
         ),
       ],
     );
@@ -101,7 +89,7 @@ class CartItemWidget extends StatelessWidget {
     return Image.network(
       height: 80,
       width: 80,
-      cartListData.product?.image ?? 'Unknown',
+      wishListData.product?.image ?? 'Unknown',
       fit: BoxFit.scaleDown,
     );
   }

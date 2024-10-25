@@ -1,4 +1,5 @@
 import 'package:crafty_bay/data/models/product_details_model.dart';
+import 'package:crafty_bay/presentation/state_holders/add_to_wishList-controller.dart';
 import 'package:crafty_bay/presentation/state_holders/auth_controllers/add_to_cart_controller.dart';
 import 'package:crafty_bay/presentation/state_holders/auth_controllers/auth_controller.dart';
 import 'package:crafty_bay/presentation/state_holders/product_details_controller.dart';
@@ -213,19 +214,32 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         const SizedBox(
           height: 8,
         ),
-        Card(
-          color: AppColors.themeColor,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: const Padding(
-            padding: EdgeInsets.all(4.0),
-            child: Icon(
-              Icons.favorite,
-              size: 16,
-              color: Colors.white,
-            ),
-          ),
+        GetBuilder<AddToWishListController>(
+          builder: (addToWishListController) {
+            return Visibility(
+              visible: !addToWishListController.inProgress,
+              replacement: const CenterCircularProgressIndicator(),
+              child: GestureDetector(
+                onTap: () {
+                  _onTapFavouriteButton();
+                },
+                child: Card(
+                  color: AppColors.themeColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.all(4.0),
+                    child: Icon(
+                      Icons.favorite,
+                      size: 16,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }
         ),
       ],
     );
@@ -299,4 +313,15 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       Get.to(() => const EmailVerificationScreen());
     }
   }
+
+  Future<void> _onTapFavouriteButton() async{
+    final bool result = await Get.find<AddToWishListController>().addToWishList(widget.productId);
+    if(result) {
+      successSnackbarMassage('Wish List', 'The product is successfully added to WishList');
+    }else {
+      failedSnackbarMassage('Wish List', 'Failed to add wishlist!! Try again');
+
+    }
+  }
+
 }

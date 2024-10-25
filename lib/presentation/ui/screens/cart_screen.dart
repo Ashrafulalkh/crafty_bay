@@ -1,9 +1,12 @@
 import 'package:crafty_bay/presentation/state_holders/bottom_nav_bar_controller.dart';
+import 'package:crafty_bay/presentation/state_holders/cart_list_controller.dart';
+import 'package:crafty_bay/presentation/state_holders/delete_cart_list_item_controller.dart';
+import 'package:crafty_bay/presentation/ui/utils/Snack_bar.dart';
 import 'package:crafty_bay/presentation/ui/utils/app_colors.dart';
-import 'package:crafty_bay/presentation/ui/utils/assets_path.dart';
+import 'package:crafty_bay/presentation/ui/widgets/cart_item_widget.dart';
+import 'package:crafty_bay/presentation/ui/widgets/center_circular_progress_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:item_count_number_button/item_count_number_button.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -16,11 +19,27 @@ class _CartScreenState extends State<CartScreen> {
   late TextTheme textTheme = Theme.of(context).textTheme;
 
   @override
+  void initState() {
+    super.initState();
+    Get.find<CartListController>().getCartList();
+  }
+
+  double get totalPrice {
+    final cartListController = Get.find<CartListController>();
+    return cartListController.cartListData.fold(0.0, (sum, item) {
+      final quantity = int.parse(item.qty ?? '1');
+      final price =
+          double.tryParse(item.price.toString()) ?? 0.0; // Safely handle price
+      return sum + (price * quantity);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvoked: (value) {
+    return WillPopScope(
+      onWillPop: () async {
         backToHome();
+        return false;
       },
       child: Scaffold(
         appBar: AppBar(
@@ -30,22 +49,51 @@ class _CartScreenState extends State<CartScreen> {
             icon: const Icon(Icons.arrow_back_ios),
           ),
         ),
-        body: Column(
-          children: [
-            Expanded(
-              child: ListView.builder(
-                itemCount: 6,
-                itemBuilder: (context, index) {
-                  return const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-                    child: CartItemWidget(),
-                  );
-                },
-              ),
+        body: GetBuilder<CartListController>(builder: (cartListController) {
+          return Visibility(
+            visible: !cartListController.inProgress,
+            replacement: const CenterCircularProgressIndicator(),
+            child: Column(
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: cartListController.cartListData.length,
+                    itemBuilder: (context, index) {
+                      final cartListData =
+                          cartListController.cartListData[index];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 4),
+                        child: CartItemWidget(
+                          cartListData: cartListData,
+                          onQuantityChanged: (newQuantity) {
+                            setState(() {
+                              cartListData.qty = newQuantity.toString();
+                            });
+                          },
+                          onDelete: () async {
+                            bool success =
+                                await Get.find<DeleteCartListItemController>()
+                                    .deleteCartItem(index);
+                            if (success) {
+                              cartListController.cartListData
+                                  .removeAt(index); // Remove from local list
+                              cartListController
+                                  .update(); // Update the controller
+                            } else {
+                              failedSnackbarMassage('Delete Item', 'Item can not deleted!! Please try again');
+                            }
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                _buildPriceAndAddToCartSection(),
+              ],
             ),
-            _buildPriceAndAddToCartSection(),
-          ],
-        ),
+          );
+        }),
       ),
     );
   }
@@ -54,21 +102,22 @@ class _CartScreenState extends State<CartScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-          color: AppColors.themeColor.withOpacity(0.1),
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(9),
-            topRight: Radius.circular(9),
-          )),
+        color: AppColors.themeColor.withOpacity(0.1),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(9),
+          topRight: Radius.circular(9),
+        ),
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Total Price'),
+              const Text('Total Price'),
               Text(
-                '\$120000',
-                style: TextStyle(
+                '\$$totalPrice',
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                   color: AppColors.themeColor,
@@ -82,7 +131,7 @@ class _CartScreenState extends State<CartScreen> {
               onPressed: () {},
               child: const Text('Checkout'),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -90,95 +139,5 @@ class _CartScreenState extends State<CartScreen> {
 
   void backToHome() {
     Get.find<BottomNavBarController>().backToHome();
-  }
-}
-
-class CartItemWidget extends StatelessWidget {
-  const CartItemWidget({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    late TextTheme textTheme = Theme.of(context).textTheme;
-    return Card(
-      elevation: 2,
-      color: Colors.white,
-      child: Row(
-        children: [
-          Image.asset(
-            height: 80,
-            width: 80,
-            AssetsPath.dummyProductImg,
-            fit: BoxFit.scaleDown,
-          ),
-          const SizedBox(
-            width: 12,
-          ),
-          Expanded(
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Title of Product',
-                            style: textTheme.bodyLarge,
-                          ),
-                          Wrap(
-                            spacing: 8,
-                            children: [
-                              Text(
-                                'Color : Red',
-                                style: textTheme.bodySmall
-                                    ?.copyWith(color: Colors.grey),
-                              ),
-                              Text(
-                                'Size : XL',
-                                style: textTheme.bodySmall
-                                    ?.copyWith(color: Colors.grey),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(
-                        Icons.delete,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      '\$100',
-                      style: textTheme.titleMedium?.copyWith(
-                        color: AppColors.themeColor,
-                      ),
-                    ),
-                    ItemCount(
-                      initialValue: 1,
-                      minValue: 1,
-                      maxValue: 10,
-                      decimalPlaces: 0,
-                      color: AppColors.themeColor,
-                      onChanged: (value) {},
-                    ),
-                  ],
-                )
-              ],
-            ),
-          )
-        ],
-      ),
-    );
   }
 }

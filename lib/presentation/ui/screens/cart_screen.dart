@@ -1,6 +1,7 @@
 import 'package:crafty_bay/presentation/state_holders/bottom_nav_bar_controller.dart';
 import 'package:crafty_bay/presentation/state_holders/cart_list_controller.dart';
 import 'package:crafty_bay/presentation/state_holders/delete_cart_list_item_controller.dart';
+import 'package:crafty_bay/presentation/ui/screens/product_details_screen.dart';
 import 'package:crafty_bay/presentation/ui/utils/Snack_bar.dart';
 import 'package:crafty_bay/presentation/ui/utils/app_colors.dart';
 import 'package:crafty_bay/presentation/ui/widgets/cart_item_widget.dart';
@@ -16,7 +17,7 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  late TextTheme textTheme = Theme.of(context).textTheme;
+
 
   @override
   void initState() {
@@ -50,20 +51,40 @@ class _CartScreenState extends State<CartScreen> {
           ),
         ),
         body: GetBuilder<CartListController>(builder: (cartListController) {
-          return Visibility(
-            visible: !cartListController.inProgress,
-            replacement: const CenterCircularProgressIndicator(),
-            child: Column(
-              children: [
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: cartListController.cartListData.length,
-                    itemBuilder: (context, index) {
-                      final cartListData =
-                          cartListController.cartListData[index];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 4),
+          // Check if the cart is being loaded
+          if (cartListController.inProgress) {
+            return const CenterCircularProgressIndicator();
+          }
+
+          // Check if the cart list is empty
+          if (cartListController.cartListData.isEmpty) {
+            return const Center(
+              child: Text(
+                'Your cart is empty',
+                style: TextStyle(color: Colors.grey),
+              ),
+            );
+          }
+
+          // Display the list of cart items
+          return Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  itemCount: cartListController.cartListData.length,
+                  itemBuilder: (context, index) {
+                    final cartListData =
+                    cartListController.cartListData[index];
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 4),
+                      child: GestureDetector(
+                        onTap: () {
+                          Get.to(
+                                () => ProductDetailsScreen(
+                                productId: cartListData.productId!),
+                          );
+                        },
                         child: CartItemWidget(
                           cartListData: cartListData,
                           onQuantityChanged: (newQuantity) {
@@ -72,26 +93,31 @@ class _CartScreenState extends State<CartScreen> {
                             });
                           },
                           onDelete: () async {
+                            final cartItemId = cartListData.productId;
+
+                            // Attempt to delete the item
                             bool success =
-                                await Get.find<DeleteCartListItemController>()
-                                    .deleteCartItem(index);
+                            await Get.find<DeleteCartListItemController>()
+                                .deleteCartItem(cartItemId!);
+
                             if (success) {
-                              cartListController.cartListData
-                                  .removeAt(index); // Remove from local list
-                              cartListController
-                                  .update(); // Update the controller
+                              // Optionally refresh the cart list
+                              await Get.find<CartListController>()
+                                  .getCartList();
                             } else {
-                              failedSnackbarMassage('Delete Item', 'Item can not deleted!! Please try again');
+                              failedSnackbarMassage(
+                                  'Delete Item',
+                                  'Item cannot be deleted! Please try again');
                             }
                           },
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
                 ),
-                _buildPriceAndAddToCartSection(),
-              ],
-            ),
+              ),
+              _buildPriceAndAddToCartSection(),
+            ],
           );
         }),
       ),
@@ -128,7 +154,9 @@ class _CartScreenState extends State<CartScreen> {
           SizedBox(
             width: 120,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                // Handle checkout action
+              },
               child: const Text('Checkout'),
             ),
           ),

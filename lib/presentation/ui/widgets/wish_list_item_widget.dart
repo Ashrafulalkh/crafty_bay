@@ -3,8 +3,8 @@ import 'package:crafty_bay/data/models/wish_list_data_model.dart';
 import 'package:crafty_bay/presentation/ui/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 
-class WishListtemWidget extends StatelessWidget {
-  const WishListtemWidget({
+class WishListItemWidget extends StatelessWidget {
+  const WishListItemWidget({
     super.key,
     required this.onDelete,
     required this.wishListData,

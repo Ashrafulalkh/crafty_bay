@@ -17,5 +17,6 @@ class Urls {
   static verifyOtpUrl(String email, String otp) => '$_baseUrl/VerifyLogin/$email/$otp';
   static reviewUrl(int id) => '$_baseUrl/ListReviewByProduct/$id';
   static deleteCartListUrl(int id) => '$_baseUrl/DeleteCartList/$id';
+  static deleteWishListUrl(int id) => '$_baseUrl/RemoveWishList/$id';
   static addtoWishListUrl(int id) => '$_baseUrl/CreateWishList/$id';
 }
